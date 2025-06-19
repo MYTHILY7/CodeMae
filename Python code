@@ -1,13 +1,15 @@
 import os
 import logging
 from bs4 import BeautifulSoup
+import re
 
 # Logging configuration
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
+
 def extract_product_from_closing_disclosure(soup):
     """
-    Extract product value from the 'Closing Disclosure' page only.
+    Extract product value from the 'Closing Disclosure' page.
     """
     for page_div in soup.find_all("div", class_="Page"):
         page_number = page_div.get("data-page-number", "Unknown")
@@ -20,74 +22,104 @@ def extract_product_from_closing_disclosure(soup):
                     value = cells[1].get_text(strip=True)
                     if "product" == label and value:
                         logging.info(f'🔍 Product "{value.strip()}" extracted from Closing Disclosure on page {page_number}')
-                        logging.info(f'🔎 Product block (table row): {row}')
                         return value.strip().lower(), page_number
 
-            # Paragraph-based format
+            # Fallback to paragraph-based layout
             paragraphs = page_div.find_all("p")
             for i, p in enumerate(paragraphs):
                 if p.get_text(strip=True).lower() == "product":
-                    for j in range(i+1, min(i+5, len(paragraphs))):
+                    for j in range(i + 1, min(i + 5, len(paragraphs))):
                         val = paragraphs[j].get_text(strip=True)
                         if val and val.lower() not in ["loan term", "loan type", "purpose"]:
                             logging.info(f'🔍 Product "{val.strip()}" extracted from Closing Disclosure on page {page_number}')
-                            logging.info(f'🔎 Product block (paragraph): {paragraphs[j].parent}')
                             return val.strip().lower(), page_number
     return None, None
 
+
+def is_valid_note_block(div):
+    """
+    Validate NOTE block based on presence of legal clauses.
+    """
+    text = div.get_text(separator=' ').upper()
+    required_keywords = [
+        "BORROWER'S PROMISE TO PAY",
+        "INTEREST",
+        "PAYMENTS",
+        "BORROWER'S RIGHT TO PREPAY"
+    ]
+    matches = sum(1 for kw in required_keywords if kw in text)
+    return matches >= 2
+
+
 def extract_note_div(soup):
     """
-    Find the <div class='Page'> that contains the 'NOTE' heading.
+    Extracts the valid NOTE div and its page number.
     """
-    for page_div in soup.find_all("div", class_="Page"):
-        page_number = page_div.get("data-page-number", "Unknown")
-        for heading in page_div.find_all(['h1', 'h2', 'h3']):
-            if heading.get_text(strip=True).lower() == "note":
-                logging.info(f'📄 Found NOTE section on page {page_number}')
-                return page_div, page_number
+    for div in soup.find_all("div", class_="Page"):
+        page_number = div.get("data-page-number", "Unknown")
+        headings = div.find_all(['h1', 'h2'])
+        for tag in headings:
+            if tag.get_text(strip=True).lower() == "note":
+                if is_valid_note_block(div):
+                    logging.info(f'📄 Valid NOTE section found on page {page_number}')
+                    return div, page_number
     return None, None
+
 
 def extract_footer_text(note_div):
     """
-    Get all text from the footer or last sections in the NOTE div.
+    Extracts footer or tail-end content from a NOTE section.
     """
-    if not note_div:
-        return ""
-    elements = note_div.find_all(['footer', 'p', 'span', 'div'])
-    combined = " ".join(el.get_text(separator=" ", strip=True) for el in elements)
-    logging.info(f'🧾 NOTE footer block: {combined[:400]}...')  # Print first 400 characters
-    return combined.lower()
+    footer = note_div.find("footer")
+    if footer:
+        return footer.get_text(separator=" ", strip=True).lower()
+
+    # Fallback: Look in last 10 <p>, <span> elements
+    candidates = note_div.find_all(["p", "span"])[-10:]
+    for el in reversed(candidates):
+        text = el.get_text(strip=True)
+        if re.search(r"(uniform instrument|fannie mae|freddie mac|form\s*\d+|F\d+)", text, re.IGNORECASE):
+            return text.lower()
+    return ""
+
 
 def process_html_file(file_path):
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             soup = BeautifulSoup(f, 'html.parser')
 
-        product, closing_page = extract_product_from_closing_disclosure(soup)
+        product, cd_page = extract_product_from_closing_disclosure(soup)
         if not product:
-            logging.error(f'FAIL: Product type not found in Closing Disclosure of file: {os.path.basename(file_path)}')
+            logging.error(f'❌ FAIL: Product not found in Closing Disclosure in file: {os.path.basename(file_path)}')
             return
 
         note_div, note_page = extract_note_div(soup)
         if not note_div:
-            logging.error(f'FAIL: NOTE section not found in file: {os.path.basename(file_path)}')
+            logging.error(f'❌ FAIL: Valid NOTE section not found in file: {os.path.basename(file_path)}')
             return
 
         footer_text = extract_footer_text(note_div)
         if not footer_text:
-            logging.error(f'FAIL: Footer not found in NOTE section of file: {os.path.basename(file_path)}')
+            logging.error(f'❌ FAIL: Footer text not found in NOTE section of file: {os.path.basename(file_path)}')
             return
 
-        if product in footer_text:
-            logging.info(f'✅ PASS: Product "{product}" from page {closing_page} matched in NOTE footer on page {note_page} in file: {os.path.basename(file_path)}')
+        # Print NOTE block and page
+        print(f"\n📃 NOTE block on page {note_page}:\n{'=' * 60}")
+        print(note_div.prettify())
+        print(f"{'=' * 60}\n🧾 Footer Text:\n{footer_text}")
+        print(f"\n📌 Product from CD (Page {cd_page}): {product}")
+
+        if product.lower() in footer_text:
+            logging.info(f'✅ PASS: Product matched in NOTE footer of file: {os.path.basename(file_path)}')
         else:
-            logging.error(f'❌ FAIL: Product "{product}" from page {closing_page} NOT found in NOTE footer on page {note_page} of file: {os.path.basename(file_path)}')
+            logging.error(f'❌ FAIL: Product "{product}" NOT found in NOTE footer of file: {os.path.basename(file_path)}')
 
     except Exception as e:
         logging.error(f'❌ Error processing {os.path.basename(file_path)}: {str(e)}')
 
+
 # Run for multiple HTML files
 if __name__ == "__main__":
-    html_files = ['pdf1.html', 'pdf10.html', 'pdf1454.html','pdf2.html','pdf4.html']
+    html_files = ['pdf1.html', 'pdf10.html', 'pdf1454.html', 'pdf2.html', 'pdf4.html']
     for file in html_files:
         process_html_file(file)
