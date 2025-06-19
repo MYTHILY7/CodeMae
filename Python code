@@ -1,0 +1,55 @@
+import os
+import logging
+from bs4 import BeautifulSoup
+
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+
+def extract_note_section(soup):
+    """Find the section under <h1>NOTE</h1>"""
+    title = soup.find('h1', class_='Title')
+    if title and 'note' in title.get_text(strip=True).lower():
+        # Return the full <div class="Page"> containing this NOTE
+        note_div = title.find_parent('div', class_='Page')
+        return note_div
+    return None
+
+def has_fixed_rate_footer(note_div):
+    """Check if any footer text contains 'FIXED RATE'"""
+    footers = note_div.find_all(['footer', 'p', 'span'], class_=lambda x: x and 'Footer' in x or 'NarrativeText' in x or 'UncategorizedText' in x)
+    for tag in footers:
+        if 'fixed rate' in tag.get_text(strip=True).lower():
+            return True
+    return False
+
+def process_html_file(file_path):
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+        soup = BeautifulSoup(content, 'html.parser')
+        
+        note_section = extract_note_section(soup)
+        if not note_section:
+            return f'❌ FAIL: NOTE section not found in file: {os.path.basename(file_path)}'
+        
+        if has_fixed_rate_footer(note_section):
+            return f'✅ PASS: FIXED RATE found in NOTE footer for file: {os.path.basename(file_path)}'
+        else:
+            return f'❌ FAIL: FIXED RATE not found in NOTE footer for file: {os.path.basename(file_path)}'
+    
+    except Exception as e:
+        return f'❌ FAIL: Error processing file {os.path.basename(file_path)} - {str(e)}'
+
+# ---------- Example Usage ----------
+
+if __name__ == "__main__":
+    # Example file paths (replace these with your actual HTML files)
+    html_files = [
+        'note_file_1.html',
+        'note_file_2.html',
+        'note_file_3.html'
+    ]
+    
+    for file in html_files:
+        result = process_html_file(file)
+        print(result)
