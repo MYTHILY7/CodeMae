@@ -6,6 +6,9 @@ from bs4 import BeautifulSoup
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 def extract_product_text(soup):
+    """
+    Extracts product value and prints block + page number from LOAN DISCLOSURE section.
+    """
     # Method 1: Table format
     for row in soup.find_all("tr"):
         cells = row.find_all("td")
@@ -13,28 +16,33 @@ def extract_product_text(soup):
             label = cells[0].get_text(strip=True).lower()
             value = cells[1].get_text(strip=True)
             if "product" == label and value:
-                print(f"\n🔎 Extracted Product (from <tr>): \"{value.strip()}\"")
+                page = row.find_parent('div', class_='Page')
+                page_number = page['data-page-number'] if page and page.has_attr('data-page-number') else 'Unknown'
+                print(f"\n📄 Product found on page: {page_number}")
+                print(f"🔎 Extracted Product (from <tr>): \"{value.strip()}\"")
                 print("📦 Product Block (from <tr>):")
                 print("-" * 60)
                 print(row.prettify())
                 print("-" * 60)
                 return value.lower()
 
-    # Method 2: <p> layout
+    # Method 2: Paragraph layout
     paragraphs = soup.find_all("p")
     for i, p in enumerate(paragraphs):
         if p.get_text(strip=True).lower() == "product":
             for j in range(i+1, min(i+5, len(paragraphs))):
                 val = paragraphs[j].get_text(strip=True)
                 if val and val.lower() not in ["loan term", "loan type", "purpose"]:
-                    print(f"\n🔎 Extracted Product (from <p>): \"{val.strip()}\"")
+                    page = p.find_parent('div', class_='Page')
+                    page_number = page['data-page-number'] if page and page.has_attr('data-page-number') else 'Unknown'
+                    print(f"\n📄 Product found on page: {page_number}")
+                    print(f"🔎 Extracted Product (from <p>): \"{val.strip()}\"")
                     print("📦 Product Block (from <p>):")
                     print("-" * 60)
                     print(p.prettify())
                     print(paragraphs[j].prettify())
                     print("-" * 60)
                     return val.lower()
-
     print("❌ Product block not found")
     return None
 
