@@ -10,36 +10,27 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def extract_exact_product_type(soup):
-    """
-    Extracts the exact product type from the LOAN DISCLOSURE or loan information section.
-    Searches for tags containing "Product" and returns the value next to it.
-    """
-    text_blocks = soup.find_all(text=True)
+    text_blocks = soup.find_all(string=True)
     for i, text in enumerate(text_blocks):
         if "product" in text.lower():
-            for j in range(i+1, min(i+6, len(text_blocks))):
+            for j in range(i + 1, min(i + 6, len(text_blocks))):
                 next_text = text_blocks[j].strip()
                 if next_text and next_text.lower() != "product" and len(next_text.split()) <= 6:
                     return next_text.lower()
     return None
 
 def extract_note_page(soup):
-    """
-    Finds the NOTE section and returns its parent page block.
-    """
     for heading in soup.find_all(['h1', 'h2', 'h3']):
         if heading.get_text(strip=True).lower() == "note":
             return heading.find_parent('div', class_='Page')
     return None
 
 def extract_footer_text(note_page):
-    """
-    Extracts the footer text from the NOTE section.
-    """
     if note_page:
         footer = note_page.find('footer')
         if footer:
             return footer.get_text(separator=' ', strip=True).lower()
+        return note_page.get_text(separator=' ', strip=True).lower()
     return None
 
 def process_html_file(file_path):
@@ -72,6 +63,5 @@ def process_directory(directory_path):
             file_path = os.path.join(directory_path, filename)
             process_html_file(file_path)
 
-# Run on current directory
 if __name__ == "__main__":
     process_directory("./")
