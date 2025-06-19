@@ -1,0 +1,86 @@
+import os
+import logging
+from bs4 import BeautifulSoup
+
+# Logging configuration
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+
+def extract_product_text(soup):
+    """
+    Extract the product type from LOAN DISCLOSURE section.
+    Looks into both <tr><td> and <p> based layouts.
+    """
+    # Method 1: Table format
+    for row in soup.find_all("tr"):
+        cells = row.find_all("td")
+        if len(cells) >= 2:
+            label = cells[0].get_text(strip=True).lower()
+            value = cells[1].get_text(strip=True)
+            if "product" == label and value:
+                return value.lower()
+
+    # Method 2: <p> tag format (look for <p>Product</p> followed by value)
+    paragraphs = soup.find_all("p")
+    for i, p in enumerate(paragraphs):
+        if p.get_text(strip=True).lower() == "product":
+            # Look ahead for the actual value (skipping known labels)
+            for j in range(i+1, min(i+5, len(paragraphs))):
+                val = paragraphs[j].get_text(strip=True)
+                if val and val.lower() not in ["loan term", "loan type", "purpose"]:
+                    return val.lower()
+    return None
+
+def extract_note_div(soup):
+    """
+    Find the <div class='Page'> that contains the 'NOTE' heading.
+    """
+    for heading in soup.find_all(['h1', 'h2', 'h3']):
+        if heading.get_text(strip=True).lower() == "note":
+            return heading.find_parent("div", class_="Page")
+    return None
+
+def extract_footer_text(note_div):
+    """
+    Get all text from the footer or last sections in the NOTE div.
+    """
+    if not note_div:
+        return ""
+    elements = note_div.find_all(['footer', 'p', 'span', 'div'])
+    combined = " ".join(el.get_text(separator=" ", strip=True) for el in elements)
+    return combined.lower()
+
+def process_file(filepath):
+    try:
+        with open(filepath, 'r', encoding='utf-8') as f:
+            soup = BeautifulSoup(f, 'html.parser')
+
+        product = extract_product_text(soup)
+        if not product:
+            logging.error(f'FAIL: Product type line not found in LOAN DISCLOSURE section of file: {os.path.basename(filepath)}')
+            return
+
+        note_div = extract_note_div(soup)
+        if not note_div:
+            logging.error(f'FAIL: NOTE section not found in file: {os.path.basename(filepath)}')
+            return
+
+        footer_text = extract_footer_text(note_div)
+        if not footer_text:
+            logging.error(f'FAIL: Footer not found in NOTE section of file: {os.path.basename(filepath)}')
+            return
+
+        if product in footer_text:
+            logging.info(f'PASS: Product "{product}" matched in NOTE footer for file: {os.path.basename(filepath)}')
+        else:
+            logging.error(f'FAIL: Product "{product}" NOT found in NOTE footer for file: {os.path.basename(filepath)}')
+
+    except Exception as e:
+        logging.error(f'FAIL: Error processing file {os.path.basename(filepath)} - {str(e)}')
+
+# -------------------------
+# Main execution starts here
+# -------------------------
+if __name__ == "__main__":
+    html_files = ['pdf1.html', 'pdf10.html', 'pdf1454.html']
+    for file in html_files:
+        process_file(file)
