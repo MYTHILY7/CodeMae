@@ -1,0 +1,174 @@
+import re
+from bs4 import BeautifulSoup
+from datetime import datetime
+from utils.log_generator import logger
+from db_connectivity.db_connector import db_connector
+
+def extract_section_6_info(section_pages):
+    """
+    Extracts borrower name and date information from Section 6: Acknowledgements and Agreements.
+    """
+    borrower_name = None
+    date_str = None
+
+    for page in section_pages:
+        section_6 = page.find('h1', string=re.compile(r'Section 6: Acknowledgements and Agreements', re.I))
+        if section_6:
+            borrower_name_tag = page.find('p', string=re.compile(r'Borrower Name:', re.I))
+            if borrower_name_tag:
+                borrower_name = borrower_name_tag.get_text(strip=True).replace('Borrower Name:', '').strip()
+                logger.info(f"Borrower Name Found: {borrower_name}")
+
+            time_tag = page.find('time', class_='CalendarDate')
+            if time_tag:
+                date_str = time_tag.text.strip()
+                logger.info(f"Date Found: {date_str}")
+
+            if not date_str:
+                signature_date_pattern = re.compile(r'Borrower Signature.*?Date \(mm/dd/yyyy\) (\d{1,2}/\d{1,2}/\d{4})', re.I)
+                signature_date_match = signature_date_pattern.search(page.get_text())
+                if signature_date_match:
+                    date_str = signature_date_match.group(1)
+                    logger.info(f"Signature Date Found: {date_str}")
+                else:
+                    date_matches = re.findall(r'\b\d{1,2}/\d{1,2}/\d{4}\b', page.get_text())
+                    if date_matches:
+                        date_str = date_matches[0]
+                        logger.info(f"Alternative Date Found: {date_str}")
+
+    parsed_date = None
+    if date_str:
+        try:
+            parsed_date = datetime.strptime(date_str, "%m/%d/%Y")
+            logger.info(f"Parsed Date: {parsed_date}")
+        except ValueError:
+            logger.info("Date parsing failed.")
+            pass
+
+    return {
+        "borrower_name": borrower_name,
+        "date_str": date_str,
+        "parsed_date": parsed_date
+    }
+
+def get_initial_and_final_urla_pages(html_path):
+    """
+    Parses the HTML and returns a dictionary with 'initial' and 'final' keys,
+    each containing a dict with 'start' and 'end' page numbers.
+    """
+    try:
+        with open(html_path, 'r', encoding='utf-8') as f:
+            soup = BeautifulSoup(f, 'html.parser')
+
+        pages = soup.find_all('div', class_='Page')
+        urla_h1_tags = [h1 for h1 in soup.find_all('h1', class_='Title')
+                        if re.fullmatch(r'Uniform Residential Loan Application', h1.get_text(strip=True), re.I)]
+
+        urla_sections = []
+
+        for h1 in urla_h1_tags:
+            parent_page = h1.find_parent('div', class_='Page')
+            if not parent_page:
+                continue
+            start_page = int(parent_page.get('data-page-number', 0))
+            urla_len = 9  # default fallback
+
+            for p_tag in parent_page.find_all('p'):
+                match = re.search(r'(\d+)\s+of\s+(\d+)', p_tag.get_text(strip=True))
+                if match:
+                    urla_len = int(match.group(2))
+                    logger.info(f"URLA Length Found: {urla_len}")
+                    break
+
+            end_page = start_page + urla_len - 1
+            section_pages = [p for p in pages if start_page <= int(p.get('data-page-number', 0)) <= end_page]
+
+            sig_info = extract_section_6_info(section_pages)
+
+            if sig_info["parsed_date"]:
+                urla_sections.append({
+                    "start_page": start_page,
+                    "end_page": end_page,
+                    "parsed_date": sig_info["parsed_date"],
+                    "borrower_name": sig_info["borrower_name"],
+                    "date_str": sig_info["date_str"]
+                })
+
+        if not urla_sections:
+            logger.info("No valid URLA sections found.")
+            return None
+
+        sorted_sections = sorted(urla_sections, key=lambda x: x["parsed_date"])
+        initial = sorted_sections[0]
+        final = sorted_sections[-1]
+
+        logger.info(f"Initial URLA: Start Page {initial['start_page']}, End Page {initial['end_page']}")
+        logger.info(f"Final URLA: Start Page {final['start_page']}, End Page {final['end_page']}")
+
+        return {
+            "initial": {
+                "start": initial["start_page"],
+                "end": initial["end_page"]
+            },
+            "final": {
+                "start": final["start_page"],
+                "end": final["end_page"]
+            }
+        }
+    except Exception as e:
+        logger.error(f"An error occurred while getting initial and final URLA pages: {e}")
+        return None
+
+def extract_and_validate_urla_sections(html_path, file_name):
+    """
+    Extracts and validates borrower name and date from the initial URLA section.
+    """
+    # Initialize the result dictionary
+    result = {
+        'rule1': 'success',
+        'message': "Validation successful: Borrower name and date are present."
+    }
+
+    try:
+        # Get the initial and final URLA page ranges
+        page_ranges = get_initial_and_final_urla_pages(html_path)
+        uuid = file_name.split('.')[0] if file_name else "unknown"
+
+        if not page_ranges:
+            logger.info("No valid URLA sections found.")
+            result['rule1'] = 'failed'
+            result['message'] = "Validation failed: No valid URLA sections found."
+        else:
+            # Open and parse pages for initial URLA
+            with open(html_path, 'r', encoding='utf-8') as f:
+                soup = BeautifulSoup(f, 'html.parser')
+            pages = soup.find_all('div', class_='Page')
+            initial_pages = [p for p in pages if page_ranges["initial"]["start"] <= int(p.get('data-page-number', 0)) <= page_ranges["initial"]["end"]]
+
+            sig_info = extract_section_6_info(initial_pages)
+
+            if not sig_info["borrower_name"] or not sig_info["date_str"]:
+                result['rule1'] = 'failed'
+                result['message'] = "Validation failed: Borrower name or date is missing."
+
+    except Exception as e:
+        logger.error(f"An error occurred while extracting and validating URLA sections: {e}")
+        result['rule1'] = 'failed'
+        result['message'] = "An error occurred while extracting and validating URLA sections. Please check the document and try again."
+
+    # Consolidated database update call
+    db_connector.update_rule_status(uuid, file_name, 1, result['rule1'], result['message'])
+
+    # Return the final result
+    return result
+
+def start_rule_1(html_file_path, json_file_path=None, file_name=None):
+    """
+    Wrapper function to start the validation for rule 1.
+    """
+    return extract_and_validate_urla_sections(html_file_path, file_name)
+
+if __name__ == '__main__':
+    html_file_path = "./1_vlm.html"
+    result = start_rule_1(html_file_path, None, "1_vlm.html")
+    logger.info(f"Rule 1 result: {result}")
