@@ -5,20 +5,21 @@ from bs4 import BeautifulSoup
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
-def extract_note_section(soup):
-    """Find the section under <h1>NOTE</h1>"""
-    title = soup.find('h1', class_='Title')
-    if title and 'note' in title.get_text(strip=True).lower():
-        # Return the full <div class="Page"> containing this NOTE
-        note_div = title.find_parent('div', class_='Page')
-        return note_div
+def extract_note_page(soup):
+    """Find the div.Page containing 'NOTE' in any heading"""
+    for heading in soup.find_all(['h1', 'h2', 'h3']):
+        if heading.get_text(strip=True).lower() == "note":
+            page_div = heading.find_parent('div', class_='Page')
+            if page_div:
+                return page_div
     return None
 
-def has_fixed_rate_footer(note_div):
-    """Check if any footer text contains 'FIXED RATE'"""
-    footers = note_div.find_all(['footer', 'p', 'span'], class_=lambda x: x and 'Footer' in x or 'NarrativeText' in x or 'UncategorizedText' in x)
-    for tag in footers:
-        if 'fixed rate' in tag.get_text(strip=True).lower():
+def check_fixed_rate_in_footer(note_div):
+    """Search for 'FIXED RATE' anywhere in the footer or final section"""
+    footer_tags = note_div.find_all(['footer', 'p', 'span', 'div'])
+    for tag in footer_tags:
+        text = tag.get_text(separator=' ', strip=True).lower()
+        if "fixed rate" in text:
             return True
     return False
 
@@ -28,11 +29,11 @@ def process_html_file(file_path):
             content = f.read()
         soup = BeautifulSoup(content, 'html.parser')
         
-        note_section = extract_note_section(soup)
-        if not note_section:
+        note_div = extract_note_page(soup)
+        if not note_div:
             return f'❌ FAIL: NOTE section not found in file: {os.path.basename(file_path)}'
-        
-        if has_fixed_rate_footer(note_section):
+
+        if check_fixed_rate_in_footer(note_div):
             return f'✅ PASS: FIXED RATE found in NOTE footer for file: {os.path.basename(file_path)}'
         else:
             return f'❌ FAIL: FIXED RATE not found in NOTE footer for file: {os.path.basename(file_path)}'
@@ -40,14 +41,13 @@ def process_html_file(file_path):
     except Exception as e:
         return f'❌ FAIL: Error processing file {os.path.basename(file_path)} - {str(e)}'
 
-# ---------- Example Usage ----------
+# ----------- Sample Usage -----------
 
 if __name__ == "__main__":
-    # Example file paths (replace these with your actual HTML files)
     html_files = [
-        'note_file_1.html',
-        'note_file_2.html',
-        'note_file_3.html'
+        'pdf1.html',
+        'pdf10.html',
+        'pdf1454.html'
     ]
     
     for file in html_files:
