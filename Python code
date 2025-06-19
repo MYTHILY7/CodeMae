@@ -5,6 +5,18 @@ from bs4 import BeautifulSoup
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
+def extract_product_type(soup):
+    """Extract the product type near the word 'Product'."""
+    text_blocks = soup.find_all(string=True)
+    for i, text in enumerate(text_blocks):
+        if 'product' in text.lower():
+            # Look ahead for the actual product type text
+            for j in range(i + 1, min(i + 6, len(text_blocks))):
+                next_text = text_blocks[j].strip()
+                if next_text and next_text.lower() != "product" and len(next_text.split()) <= 6:
+                    return next_text.lower()
+    return None
+
 def extract_note_page(soup):
     """Find the div.Page containing 'NOTE' in any heading"""
     for heading in soup.find_all(['h1', 'h2', 'h3']):
@@ -14,12 +26,14 @@ def extract_note_page(soup):
                 return page_div
     return None
 
-def check_fixed_rate_in_footer(note_div):
-    """Search for 'FIXED RATE' anywhere in the footer or final section"""
-    footer_tags = note_div.find_all(['footer', 'p', 'span', 'div'])
-    for tag in footer_tags:
+def footer_contains_product(note_div, product_text):
+    """Check if the product string is found in the footer text."""
+    if not note_div:
+        return False
+    tags_to_search = note_div.find_all(['footer', 'p', 'span', 'div'])
+    for tag in tags_to_search:
         text = tag.get_text(separator=' ', strip=True).lower()
-        if "fixed rate" in text:
+        if product_text in text:
             return True
     return False
 
@@ -28,16 +42,23 @@ def process_html_file(file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
         soup = BeautifulSoup(content, 'html.parser')
-        
+
+        # Step 1: Extract product type
+        product_text = extract_product_type(soup)
+        if not product_text:
+            return f'❌ FAIL: Product type not found in file: {os.path.basename(file_path)}'
+
+        # Step 2: Locate NOTE page
         note_div = extract_note_page(soup)
         if not note_div:
             return f'❌ FAIL: NOTE section not found in file: {os.path.basename(file_path)}'
 
-        if check_fixed_rate_in_footer(note_div):
-            return f'✅ PASS: FIXED RATE found in NOTE footer for file: {os.path.basename(file_path)}'
+        # Step 3: Match product in footer
+        if footer_contains_product(note_div, product_text):
+            return f'✅ PASS: Product "{product_text}" matched in NOTE footer for file: {os.path.basename(file_path)}'
         else:
-            return f'❌ FAIL: FIXED RATE not found in NOTE footer for file: {os.path.basename(file_path)}'
-    
+            return f'❌ FAIL: Product "{product_text}" NOT found in NOTE footer for file: {os.path.basename(file_path)}'
+
     except Exception as e:
         return f'❌ FAIL: Error processing file {os.path.basename(file_path)} - {str(e)}'
 
@@ -49,7 +70,7 @@ if __name__ == "__main__":
         'pdf10.html',
         'pdf1454.html'
     ]
-    
+
     for file in html_files:
         result = process_html_file(file)
         print(result)
