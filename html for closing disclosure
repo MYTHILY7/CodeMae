@@ -1,0 +1,484 @@
+<div class="Page" data-page-number="465">
+  <header class="Header" id="513cba9dbccf420598de047fa274f8ba" />
+  <span class="UncategorizedText" id="fcc4f5eb35a046b19372d042c52de3af">DocuSign Envelope ID: 803643B6-21AA-4D29-B079-D937E48B65F1</span>
+  <h1 class="Title" id="faaff1f7a0374b3190ca59b5f0a0a1bc">Closing Disclosure</h1>
+  <span class="UncategorizedText" id="aaf15fb7f7234b3d8438fae7636ccd24">This form is a statement of final loan terms and closing costs. Compare this document with your Loan Estimate.</span>
+  <section class="Section" id="8010a0805366474a9f911f513f005438" />
+  <h2 class="Heading" id="99648fc5940a4eab9b78e77993ab81b4">Closing Information</h2>
+  <table class="Table" id="f1b5837afcc542a89459b3eaac17a4b1">
+    <tbody>
+      <tr>
+        <td>Date Issued</td>
+        <td>8/23/2023</td>
+      </tr>
+      <tr>
+        <td>Closing Date</td>
+        <td>9/1/2023</td>
+      </tr>
+      <tr>
+        <td>Disbursement Date</td>
+        <td>9/1/2023</td>
+      </tr>
+      <tr>
+        <td>Settlement Agent</td>
+        <td>McKnight Title</td>
+      </tr>
+      <tr>
+        <td>File #</td>
+        <td>CB-8979-DD</td>
+      </tr>
+      <tr>
+        <td>Property</td>
+        <td>
+          <p>4403 Bellaire Drive S Unit</p>
+          <br />
+          <p>Fort Worth, TX 76109</p>
+        </td>
+      </tr>
+      <tr>
+        <td>Sale Price</td>
+        <td>$299,000</td>
+      </tr>
+    </tbody>
+  </table>
+  <section class="Section" id="7240aa8fab81473d9e1ee04e491d950b" />
+  <h2 class="Heading" id="f524f1c9a1a6417db69ef75e04068c9b">Transaction Information</h2>
+  <table class="Table" id="cfde4954374645aeb9f63a644026e0b2">
+    <tbody>
+      <tr>
+        <td>Borrower</td>
+        <td>
+          <p>Canaan Factor</p>
+          <br />
+          <p>3109 Overton Park Drive East</p>
+          <br />
+          <p>Fort Worth, TX 76109</p>
+        </td>
+      </tr>
+      <tr>
+        <td>Seller</td>
+        <td>
+          <p>Maclynn Squared LLC Series 224s</p>
+          <br />
+          <p>4403 Bellaire Drive Unit 224S</p>
+          <br />
+          <p>Fort Worth, TX 76109</p>
+        </td>
+      </tr>
+      <tr>
+        <td>Lender</td>
+        <td>Envoy Mortgage, LTD</td>
+      </tr>
+    </tbody>
+  </table>
+  <section class="Section" id="3caf186610c3443aa08f2a855d72f3f5" />
+  <h2 class="Heading" id="fa03a2c48c5c41e9907ebe8aa8051d59">Loan Information</h2>
+  <table class="Table" id="75c8bcbd122a4281a16d71c956fd2f7d">
+    <tbody>
+      <tr>
+        <td>Loan Term</td>
+        <td>30 years</td>
+      </tr>
+      <tr>
+        <td>Purpose</td>
+        <td>Purchase</td>
+      </tr>
+      <tr>
+        <td>Product</td>
+        <td>Fixed Rate</td>
+      </tr>
+      <tr>
+        <td>Loan Type</td>
+        <td>
+          <input checked="" type="checkbox" />
+          <p>Conventional</p>
+          <input type="checkbox" />
+          <p>FHA</p>
+          <br />
+          <input type="checkbox" />
+          <p>VA</p>
+        </td>
+      </tr>
+      <tr>
+        <td>Loan ID #</td>
+        <td>1100042462</td>
+      </tr>
+      <tr>
+        <td>MIC #</td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+  <section class="Section" id="65d780a3fc154fab8f7c98f49a12198c" />
+  <h2 class="Heading" id="8ed0a89285774a4796c8f35f0fdd9b27">Loan Terms</h2>
+  <table class="Table" id="0b0c1b95c0e143e7b7f54f4dbb35e3af">
+    <tbody>
+      <tr>
+        <td>Loan Amount</td>
+        <td>$224,250</td>
+        <td>
+          <p>Can this amount increase after closing?</p>
+          <br />
+          <p>NO</p>
+        </td>
+      </tr>
+      <tr>
+        <td>Interest Rate</td>
+        <td>7.625 %</td>
+        <td>NO</td>
+      </tr>
+      <tr>
+        <td>
+          <p>Monthly Principal &amp; Interest</p>
+          <br />
+          <p>See Projected Payments below for your</p>
+          <br />
+          <p>Estimated Total Monthly Payment</p>
+        </td>
+        <td>$1,587.23</td>
+        <td>NO</td>
+      </tr>
+      <tr>
+        <td>Prepayment Penalty</td>
+        <td></td>
+        <td>
+          <p>Does the loan have these features?</p>
+          <br />
+          <p>NO</p>
+        </td>
+      </tr>
+      <tr>
+        <td>Balloon Payment</td>
+        <td></td>
+        <td>NO</td>
+      </tr>
+    </tbody>
+  </table>
+  <section class="Section" id="2769c6c6fec94abea361339a2f2a6748" />
+  <h2 class="Heading" id="4321f50d4c5c4bc188bde5466ddbb006">Projected Payments</h2>
+  <table class="Table" id="ecf94596d5424a749f375b5acb274445">
+    <tbody>
+      <tr>
+        <td>Payment Calculation</td>
+        <td>Years 1-30</td>
+      </tr>
+      <tr>
+        <td>Principal &amp; Interest</td>
+        <td>$1,587.23</td>
+      </tr>
+      <tr>
+        <td>Mortgage Insurance</td>
+        <td>+ 0</td>
+      </tr>
+      <tr>
+        <td>
+          <p>Estimated Escrow</p>
+          <br />
+          <p>Amount can increase over time</p>
+        </td>
+        <td>+ 386.48</td>
+      </tr>
+      <tr>
+        <td>
+          <p>Estimated Total</p>
+          <br />
+          <p>Monthly Payment</p>
+        </td>
+        <td>$1,973.71</td>
+      </tr>
+      <tr>
+        <td>
+          <p>Estimated Taxes, Insurance</p>
+          <br />
+          <p>&amp; Assessments</p>
+          <br />
+          <p>Amount can increase over time</p>
+          <br />
+          <p>See page 4 for details</p>
+        </td>
+        <td>
+          <p>$1,050.48</p>
+          <br />
+          <p>Monthly</p>
+        </td>
+        <td>
+          <p>This estimate includes</p>
+          <br />
+          <input checked="" type="checkbox" />
+          <p>Property Taxes</p>
+          <br />
+          <input checked="" type="checkbox" />
+          <p>Homeowner's Insurance</p>
+          <br />
+          <input checked="" type="checkbox" />
+          <p>Other: HOA</p>
+          <br />
+          <p>See Escrow Account on page 4 for details. You must pay for other property costs separately.</p>
+        </td>
+        <td>
+          <p>In escrow?</p>
+          <br />
+          <p>YES</p>
+          <br />
+          <p>YES</p>
+          <br />
+          <p>NO</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <section class="Section" id="42c39fd254e94b888b5333600dbb52ca" />
+  <h2 class="Heading" id="27c836ceb2eb4ba994222aa368576193">Costs at Closing</h2>
+  <table class="Table" id="520e04252df74937bac46f172f2604a6">
+    <tbody>
+      <tr>
+        <td>Closing Costs</td>
+        <td>$17,812.88</td>
+        <td>Includes $10,851.56 in Loan Costs + $6,961.32 in Other Costs - $0 in Lender Credits. See page 2 for details.</td>
+      </tr>
+      <tr>
+        <td>Cash to Close</td>
+        <td>$84,105.63</td>
+        <td>Includes Closing Costs. See Calculating Cash to Close on page 3 for details.</td>
+      </tr>
+    </tbody>
+  </table>
+  <footer class="Footer" id="67239ebf5b4e47c9a1b9a5719a7a5bcc" />
+  <span class="UncategorizedText" id="25ed2aa16aa14ad0a89cfaddd18db941">CLOSING DISCLOSURE • GTRIDCCDWS_S 08/23/2023 03:07 PM PST</span>
+  <span class="PageNumber" id="513aa5776d364504a86fd1eb10ab8838">Page 1 of 5 · LOAN ID # 1100042462 GTRIDCCDWS (PRE)</span>
+</div>
+
+
+
+
+
+
+
+same html part for another pdf 
+<div class="Page" data-page-number="307">
+  <header class="Header" id="9931d1f2e4464facb8f975f5747674e2" />
+  <span class="UncategorizedText" id="49c4fe12d774483eaa95ea1b0784c37b">DocuSign Envelope ID: 90FA1AD2-8C44-47C8-85F8-4ADED4D6208D</span>
+  <h1 class="Title" id="505f500e17044a4d8b4ba228fefe4942">Closing Disclosure</h1>
+  <span class="UncategorizedText" id="5729bdd9d9cc42ce94487aa77467347d">This form is a statement of final loan terms and closing costs. Compare this document with your Loan Estimate.</span>
+  <section class="Section" id="84f90422861d436893899fa932c9e128" />
+  <table class="Table" id="f3a89c9aea994968b24c9be95dd78219">
+    <thead>
+      <tr>
+        <th>Closing Information</th>
+        <th>Transaction Information</th>
+        <th>Loan Information</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <p>Date Issued</p>
+          <br />
+          <p>5/14/2024</p>
+          <br />
+          <p>Closing Date</p>
+          <br />
+          <p>5/30/2024</p>
+          <br />
+          <p>Disbursement Date</p>
+          <br />
+          <p>5/30/2024</p>
+          <br />
+          <p>Settlement Agent</p>
+          <br />
+          <p>Murphy &amp; Murphy</p>
+          <br />
+          <p>File #</p>
+          <br />
+          <p>Property</p>
+          <br />
+          <p>19911 COUNTY ROAD 70</p>
+          <br />
+          <p>ANDALUSIA, AL</p>
+          <br />
+          <br />
+          <p>Sale Price</p>
+          <br />
+          <p>$96,000</p>
+        </td>
+        <td>
+          <p>Borrower</p>
+          <br />
+          <p>Katherine Nicole Silva</p>
+          <br />
+          <p>3200 Mulberry Rd</p>
+          <br />
+          <p>Brantley, AL 36009</p>
+          <br />
+          <br />
+          <p>Seller</p>
+          <br />
+          <p>Jonathan B. Seay and Patricia M. Seay</p>
+          <br />
+          <p>19911 County Road 70</p>
+          <br />
+          <p>Andalusia, AL 36421-8367</p>
+          <br />
+          <br />
+          <p>Lender</p>
+          <br />
+          <p>Envoy Mortgage, LTD</p>
+        </td>
+        <td>
+          <p>Loan Term</p>
+          <br />
+          <p>15 years</p>
+          <br />
+          <p>Purpose</p>
+          <br />
+          <p>Purchase</p>
+          <br />
+          <p>Product</p>
+          <br />
+          <p>Fixed Rate</p>
+          <br />
+          <br />
+          <p>Loan Type</p>
+          <br />
+          <p>☒Conventional ☐FHA</p>
+          <br />
+          <p>☐VA ☐____</p>
+          <br />
+          <br />
+          <p>Loan ID #</p>
+          <br />
+          <p>1100054205</p>
+          <br />
+          <p>MIC #</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <section class="Section" id="01998bd34a944d03ba88c4c9c75e5a66" />
+  <h2 class="Subtitle" id="4c04a801db1647e1a103bc1d4cf0efb9">Loan Terms</h2>
+  <table class="Table" id="7b15ef758c174c32b3a7062823d38322">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Can this amount increase after closing?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>
+          <p>Loan Amount</p>
+          <br />
+          <p>$76,800</p>
+        </td>
+        <td>NO</td>
+      </tr>
+      <tr>
+        <td>
+          <p>Interest Rate</p>
+          <br />
+          <p>7.125 %</p>
+        </td>
+        <td>NO</td>
+      </tr>
+      <tr>
+        <td>
+          <p>Monthly Principal &amp; Interest</p>
+          <br />
+          <p>$695.68</p>
+          <br />
+          <p>See Projected Payments below for your Estimated Total Monthly Payment</p>
+        </td>
+        <td>NO</td>
+      </tr>
+      <tr>
+        <td>Prepayment Penalty</td>
+        <td>NO</td>
+      </tr>
+      <tr>
+        <td>Balloon Payment</td>
+        <td>NO</td>
+      </tr>
+    </tbody>
+  </table>
+  <section class="Section" id="fa5b472e227d455984996243a63b450a" />
+  <h2 class="Subtitle" id="c088fea16c4a4652b3b9df6a7002b26b">Projected Payments</h2>
+  <table class="Table" id="d20c07c5b51244fb85077ba36c620af8">
+    <thead>
+      <tr>
+        <th>Payment Calculation</th>
+        <th>Years 1-15</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Principal &amp; Interest</td>
+        <td>$695.68</td>
+      </tr>
+      <tr>
+        <td>Mortgage Insurance</td>
+        <td>+ 0</td>
+      </tr>
+      <tr>
+        <td>
+          <p>Estimated Escrow</p>
+          <br />
+          <p>Amount can increase over time</p>
+        </td>
+        <td>+ 0</td>
+      </tr>
+      <tr>
+        <td>
+          <p>Estimated Total</p>
+          <br />
+          <p>Monthly Payment</p>
+        </td>
+        <td>$695.68</td>
+      </tr>
+      <tr>
+        <td>
+          <p>Estimated Taxes, Insurance</p>
+          <br />
+          <p>&amp; Assessments</p>
+          <br />
+          <p>Amount can increase over time</p>
+          <br />
+          <p>See page 4 for details</p>
+          <br />
+          <p>$173.15</p>
+          <br />
+          <p>Monthly</p>
+        </td>
+        <td>
+          <p>This estimate includes</p>
+          <br />
+          <p>☒ Property Taxes</p>
+          <br />
+          <p>☒ Homeowner's Insurance</p>
+          <br />
+          <p>☐ Other:</p>
+          <br />
+          <p>See Escrow Account on page 4 for details. You must pay for other property costs separately.</p>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <section class="Section" id="783ff8ea62f94340b35497a1af3ec4e5" />
+  <h2 class="Subtitle" id="daa21dee10eb4dc2bb4b9f96e07192d2">Costs at Closing</h2>
+  <table class="Table" id="c741fb8f176d495b9460b4ef0916fd5b">
+    <tbody>
+      <tr>
+        <td>Closing Costs</td>
+        <td>$6,000.68</td>
+        <td>Includes $3,947.50 in Loan Costs + $2,053.18 in Other Costs - $0 in Lender Credits. See page 2 for details.</td>
+      </tr>
+      <tr>
+        <td>Cash to Close</td>
+        <td>$25,200.68</td>
+        <td>Includes Closing Costs. See Calculating Cash to Close on page 3 for details.</td>
+      </tr>
+    </tbody>
+  </table>
+  <footer class="Footer" id="2d18ebc8cb87450586e6323a2c8c1279" />
+  <span class="UncategorizedText" id="4e0cfd48bff54d2d80e3e120a4141a4d">CLOSING DISCLOSURE • GTRIDCDWS_S 05/14/2024 09:21 AM PST</span>
+  <span class="PageNumber" id="8d3dbb0815f0439ebb63c206affcf67b">Page 1 of 5 · LOAN ID # 1100054205 GTRIDCDWSS (PRE)</span>
+</div>
