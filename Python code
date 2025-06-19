@@ -5,102 +5,52 @@ from bs4 import BeautifulSoup
 # Logging configuration
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
-def extract_product_text(soup):
+def extract_product_from_closing_disclosure(soup):
     """
-    Extracts product value and prints block + page number from LOAN DISCLOSURE section.
+    Extract product value from the 'Closing Disclosure' page only.
     """
-    # Method 1: Table format
-    for row in soup.find_all("tr"):
-        cells = row.find_all("td")
-        if len(cells) >= 2:
-            label = cells[0].get_text(strip=True).lower()
-            value = cells[1].get_text(strip=True)
-            if "product" == label and value:
-                page = row.find_parent('div', class_='Page')
-                page_number = page['data-page-number'] if page and page.has_attr('data-page-number') else 'Unknown'
-                print(f"\n📄 Product found on page: {page_number}")
-                print(f"🔎 Extracted Product (from <tr>): \"{value.strip()}\"")
-                print("📦 Product Block (from <tr>):")
-                print("-" * 60)
-                print(row.prettify())
-                print("-" * 60)
-                return value.lower()
+    for page_div in soup.find_all("div", class_="Page"):
+        page_number = page_div.get("data-page-number", "Unknown")
+        title_tag = page_div.find("h1", class_="Title")
+        if title_tag and title_tag.get_text(strip=True).lower() == "closing disclosure":
+            # Method 1: Table structure
+            for row in page_div.find_all("tr"):
+                cells = row.find_all("td")
+                if len(cells) >= 2:
+                    label = cells[0].get_text(strip=True).lower()
+                    value = cells[1].get_text(strip=True)
+                    if "product" == label and value:
+                        logging.info(f'🔍 Product "{value.strip()}" extracted from Closing Disclosure on page {page_number}')
+                        logging.info(f'🔎 Product block (table row): {row}')
+                        return value.strip().lower(), page_number
 
-    # Method 2: Paragraph layout
-    paragraphs = soup.find_all("p")
-    for i, p in enumerate(paragraphs):
-        if p.get_text(strip=True).lower() == "product":
-            for j in range(i+1, min(i+5, len(paragraphs))):
-                val = paragraphs[j].get_text(strip=True)
-                if val and val.lower() not in ["loan term", "loan type", "purpose"]:
-                    page = p.find_parent('div', class_='Page')
-                    page_number = page['data-page-number'] if page and page.has_attr('data-page-number') else 'Unknown'
-                    print(f"\n📄 Product found on page: {page_number}")
-                    print(f"🔎 Extracted Product (from <p>): \"{val.strip()}\"")
-                    print("📦 Product Block (from <p>):")
-                    print("-" * 60)
-                    print(p.prettify())
-                    print(paragraphs[j].prettify())
-                    print("-" * 60)
-                    return val.lower()
-    print("❌ Product block not found")
-    return None
+            # Method 2: Paragraph block style
+            paragraphs = page_div.find_all("p")
+            for i, p in enumerate(paragraphs):
+                if p.get_text(strip=True).lower() == "product":
+                    for j in range(i+1, min(i+5, len(paragraphs))):
+                        val = paragraphs[j].get_text(strip=True)
+                        if val and val.lower() not in ["loan term", "loan type", "purpose"]:
+                            logging.info(f'🔍 Product "{val.strip()}" extracted from Closing Disclosure on page {page_number}')
+                            logging.info(f'🔎 Product block (paragraph): {paragraphs[j].parent}')
+                            return val.strip().lower(), page_number
+    return None, None
 
-def extract_note_div(soup):
-    for heading in soup.find_all(['h1', 'h2', 'h3']):
-        if heading.get_text(strip=True).lower() == "note":
-            page_div = heading.find_parent("div", class_="Page")
-            if page_div:
-                print(f"\n📄 Found NOTE section on page: {page_div.get('data-page-number', 'Unknown')}")
-                print("-" * 60)
-                print(page_div.prettify())
-                print("-" * 60)
-                return page_div
-    print("❌ NOTE section block not found")
-    return None
-
-def extract_footer_text(note_div):
-    if not note_div:
-        return ""
-    elements = note_div.find_all(['footer', 'p', 'span', 'div'])
-    combined = " ".join(el.get_text(separator=" ", strip=True) for el in elements)
-    print("\n📦 Extracted Footer Text:")
-    print("-" * 60)
-    print(combined.strip())
-    print("-" * 60)
-    return combined.lower()
-
-def process_file(filepath):
+# Example usage
+def process_html_file(file_path):
     try:
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r', encoding='utf-8') as f:
             soup = BeautifulSoup(f, 'html.parser')
-
-        print(f"\n🔍 Processing file: {os.path.basename(filepath)}")
-        product = extract_product_text(soup)
-        if not product:
-            logging.error(f'FAIL: Product type line not found in LOAN DISCLOSURE section of file: {os.path.basename(filepath)}')
-            return
-
-        note_div = extract_note_div(soup)
-        if not note_div:
-            logging.error(f'FAIL: NOTE section not found in file: {os.path.basename(filepath)}')
-            return
-
-        footer_text = extract_footer_text(note_div)
-        if not footer_text:
-            logging.error(f'FAIL: Footer not found in NOTE section of file: {os.path.basename(filepath)}')
-            return
-
-        if product in footer_text:
-            logging.info(f'PASS: Product \"{product}\" matched in NOTE footer for file: {os.path.basename(filepath)}')
+        product, page = extract_product_from_closing_disclosure(soup)
+        if product:
+            logging.info(f'✅ Product found: "{product}" on page {page} in file: {os.path.basename(file_path)}')
         else:
-            logging.error(f'FAIL: Product \"{product}\" NOT found in NOTE footer for file: {os.path.basename(filepath)}')
-
+            logging.error(f'❌ Product not found in Closing Disclosure of file: {os.path.basename(file_path)}')
     except Exception as e:
-        logging.error(f'FAIL: Error processing file {os.path.basename(filepath)} - {str(e)}')
+        logging.error(f'❌ Error processing {os.path.basename(file_path)}: {str(e)}')
 
-# -------------------------
+# Driver
 if __name__ == "__main__":
     html_files = ['pdf1.html', 'pdf10.html', 'pdf1454.html']
     for file in html_files:
-        process_file(file)
+        process_html_file(file)
