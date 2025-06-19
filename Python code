@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
 
 def extract_product_text(soup):
+    # Method 1: Table format
     for row in soup.find_all("tr"):
         cells = row.find_all("td")
         if len(cells) >= 2:
@@ -13,8 +14,13 @@ def extract_product_text(soup):
             value = cells[1].get_text(strip=True)
             if "product" == label and value:
                 print(f"\n🔎 Extracted Product (from <tr>): \"{value.strip()}\"")
+                print("📦 Product Block (from <tr>):")
+                print("-" * 60)
+                print(row.prettify())
+                print("-" * 60)
                 return value.lower()
 
+    # Method 2: <p> layout
     paragraphs = soup.find_all("p")
     for i, p in enumerate(paragraphs):
         if p.get_text(strip=True).lower() == "product":
@@ -22,7 +28,13 @@ def extract_product_text(soup):
                 val = paragraphs[j].get_text(strip=True)
                 if val and val.lower() not in ["loan term", "loan type", "purpose"]:
                     print(f"\n🔎 Extracted Product (from <p>): \"{val.strip()}\"")
+                    print("📦 Product Block (from <p>):")
+                    print("-" * 60)
+                    print(p.prettify())
+                    print(paragraphs[j].prettify())
+                    print("-" * 60)
                     return val.lower()
+
     print("❌ Product block not found")
     return None
 
