@@ -3,53 +3,65 @@ import logging
 from bs4 import BeautifulSoup
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+logging.basicConfig(
+    filename='product_match.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 def extract_note_page(soup):
-    """Find the div.Page containing 'NOTE' in any heading"""
     for heading in soup.find_all(['h1', 'h2', 'h3']):
         if heading.get_text(strip=True).lower() == "note":
-            page_div = heading.find_parent('div', class_='Page')
-            if page_div:
-                return page_div
+            return heading.find_parent('div', class_='Page')
     return None
 
-def check_fixed_rate_in_footer(note_div):
-    """Search for 'FIXED RATE' anywhere in the footer or final section"""
-    footer_tags = note_div.find_all(['footer', 'p', 'span', 'div'])
-    for tag in footer_tags:
-        text = tag.get_text(separator=' ', strip=True).lower()
-        if "fixed rate" in text:
-            return True
-    return False
+def extract_product_type_line(note_div):
+    for tag in note_div.find_all(['p', 'span', 'div'], recursive=True):
+        text = tag.get_text(separator=' ', strip=True)
+        if "note" in text.lower() and "uniform" in text.lower():
+            return text.strip()
+    return None
+
+def check_product_match_in_footer(note_div, product_line):
+    footer_text = ""
+    for tag in note_div.find_all(['footer', 'p', 'span', 'div']):
+        footer_text += tag.get_text(separator=' ', strip=True) + " "
+
+    norm_footer = ' '.join(footer_text.lower().split())
+    norm_product = ' '.join(product_line.lower().split())
+
+    return norm_product in norm_footer
 
 def process_html_file(file_path):
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
-        soup = BeautifulSoup(content, 'html.parser')
+            soup = BeautifulSoup(f.read(), 'html.parser')
         
         note_div = extract_note_page(soup)
         if not note_div:
-            return f'❌ FAIL: NOTE section not found in file: {os.path.basename(file_path)}'
+            logging.error(f"NOTE section not found in file: {file_path}")
+            return f"❌ FAIL: NOTE section not found in file: {file_path}"
 
-        if check_fixed_rate_in_footer(note_div):
-            return f'✅ PASS: FIXED RATE found in NOTE footer for file: {os.path.basename(file_path)}'
+        product_line = extract_product_type_line(note_div)
+        if not product_line:
+            logging.error(f"Product type line not found in NOTE section of file: {file_path}")
+            return f"❌ FAIL: Product type line not found in NOTE section of file: {file_path}"
+
+        if check_product_match_in_footer(note_div, product_line):
+            logging.info(f"PASS - Product line matched in footer of file: {file_path}")
+            return f"✅ PASS: Product line matched in footer of file: {file_path}"
         else:
-            return f'❌ FAIL: FIXED RATE not found in NOTE footer for file: {os.path.basename(file_path)}'
-    
+            logging.warning(f"Product line mismatch in footer - File: {file_path} | Product Line: \"{product_line}\"")
+            return f"❌ FAIL: Product line not found in footer of file: {file_path}\n→ Product Line: \"{product_line}\""
+
     except Exception as e:
-        return f'❌ FAIL: Error processing file {os.path.basename(file_path)} - {str(e)}'
+        logging.exception(f"Error processing file: {file_path}")
+        return f"❌ FAIL: Error processing {file_path} - {str(e)}"
 
-# ----------- Sample Usage -----------
-
+# ----------- Runner -----------
 if __name__ == "__main__":
-    html_files = [
-        'pdf1.html',
-        'pdf10.html',
-        'pdf1454.html'
-    ]
-    
+    html_files = [f for f in os.listdir() if f.endswith('.html')]
+
     for file in html_files:
         result = process_html_file(file)
         print(result)
